@@ -1,5 +1,5 @@
 const initialState = {
-    modelType: '',
+    type: '',
   }
   
   export const Model = (state = initialState, action) => {
@@ -7,6 +7,10 @@ const initialState = {
       case 'SET_MODEL':
         return {
           type: action.modelType,
+        }
+      case 'CLEAR_MODEL':
+        return {
+            type: ''
         }
       default:
         return state

@@ -1,5 +1,5 @@
 const initialState = {
-    engineType: '',
+    type: '',
   }
   
   export const Engine = (state = initialState, action) => {
@@ -8,6 +8,10 @@ const initialState = {
         return {
           type: action.engineType,
         }
+      case 'CLEAR_ENGINE':
+          return {
+              type: ''
+          }
       default:
         return state
     }

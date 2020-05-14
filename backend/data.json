@@ -1,0 +1,80 @@
+{
+    "pro": {
+        "model": "PRO RS3",
+        "price": "4000",
+        "engines": [
+            {
+                "name": "5.2L 532BHP",
+                "price": "2500",
+                "gearboxes": ["Automatic"]
+            },
+            {
+                "name": "4.2L 443BHP",
+                "price": "2000",
+                "gearboxes": ["Automatic"]
+            },
+            {
+                "name": "3.6L 374BHP",
+                "price": "1500",
+                "gearboxes": ["Automatic", "Manual"]
+            },
+            {
+                "name": "2.0L 166BHP",
+                "price": "1000",
+                "gearboxes": ["Automatic", "Manual"]
+            }
+        ],
+        "colors": ["red", "gray", "brown", "black"]
+    },
+    "uber": {
+        "model": "UBER RS2",
+        "price": "3500",
+        "engines": [
+            {
+                "name": "4.2L 443BHP",
+                "price": "2000",
+                "gearboxes": ["Automatic"]
+            },
+            {
+                "name": "3.6L 374BHP",
+                "price": "1500",
+                "gearboxes": ["Automatic", "Manual"]
+            },
+            {
+                "name": "2.0L 166BHP",
+                "price": "1000",
+                "gearboxes": ["Automatic", "Manual"]
+            }
+        ],
+        "colors": ["red", "gray", "brown"]
+    },
+    "standard": {
+        "model": "STANDARD",
+        "price": "3000",
+        "engines": [
+            {
+                "name": "3.6L 374BHP",
+                "price": "1500",
+                "gearboxes": ["Automatic", "Manual"]
+            },
+            {
+                "name": "2.0L 166BHP",
+                "price": "1000",
+                "gearboxes": ["Automatic", "Manual"]
+            }
+        ],
+        "colors": ["red", "gold", "brown"]
+    },
+    "wk": {
+        "model": "WK",
+        "price": "2500",
+        "engines": [
+            {
+                "name": "2.0L 166BHP",
+                "price": "1000",
+                "gearboxes": ["Automatic", "Manual"]
+            }
+        ],
+        "colors": ["red", "gray", "brown", "black", "blue"]
+    }
+}

@@ -1,57 +1,152 @@
-import React, { useState, useEffect } from 'react'
+import React, {useEffect, useState} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import Button from '../components/Button'
 import ColorButton from '../components/ColorButton'
-import { setEngine } from '../actions/Engine'
-import { setModel } from '../actions/Model'
+import { setEngine, clearEngine } from '../actions/Engine'
+import { setModel, clearModel } from '../actions/Model'
+import { setGear, clearGear } from '../actions/Gear'
+import { setColor, clearColor } from '../actions/Color'
+import { setPrice } from '../actions/Price'
+
+import axios from 'axios'
 
 const Configurator = () => {
-    const models = ['PRO RS3', 'UBER RS2', 'STANDARD', 'WK']
-    const engines = ['5.2L 532BHP', '4.2L 443BHP', '3.6L 374BHP', '2.0L 166BHP']
-    const gearboxes = ['Manual', 'Automatic']
-    const colors = ['red', 'gray', 'brown', 'black']
+
+    const [models, setModels] = useState([])
+    const [engines, setEngines] = useState([])
+    const [gearboxes, setGearboxes] = useState([])
+    const [colors, setColors] = useState([])
+    const [cars, setCars] = useState()
 
     const dispatch = useDispatch()
+
     const engine = useSelector(state => state.Engine.type)
     const model = useSelector(state => state.Model.type)
+    const gear = useSelector(state => state.Gear.type)
+    const color = useSelector(state => state.Color.type)
+
+    const apiCall = () => {
+        axios.get('http://localhost:5000/api/cars')
+            .then(res => {
+                initialDataHandler(res)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
+
+    const initialDataHandler = (res) => {
+        const keys = Object.keys(res.data)
+        const models = keys.map(item => res.data[item].model)
+        const data = res.data[keys[0]]
+        const engineNames = data.engines.map(item => item.name)
+        const price = Number(data.price) + Number(data.engines[0].price)
+        console.log(price)
 
 
-    const [gearbox, setGearbox] = useState(gearboxes[0])
-    const [color, setColor] = useState(colors[0])
+        dispatch(setPrice(price))
+        dispatch(setEngine(data.engines[0].name))
+        dispatch(setModel(data.model))
+        dispatch(setGear(data.engines[0].gearboxes[0]))
+        dispatch(setColor(data.colors[0]))
 
+        setModels(models)
+        setColors(data.colors)
+        setEngines(engineNames)
+        setGearboxes(data.engines[0].gearboxes)
+        setCars(res.data)
+    }
 
+    const changeModelHandler = () => {
+        if(cars) {
+            const splitted = model.split(' ')
+            const car = splitted[0].toLowerCase()
+            const data = cars[car]
+            const engineNames = data.engines.map(item => item.name)
+            const price = Number(data.price) + Number(data.engines[0].price)
+
+            dispatch(setPrice(price))
+            dispatch(setEngine(engineNames[0]))
+            dispatch(setGear(data.engines[0].gearboxes[0]))
+            dispatch(setColor(data.colors[0]))
+
+            setColors(data.colors)
+            setEngines(engineNames)
+            setGearboxes(data.engines[0].gearboxes)
+        }
+    }
+
+    const changeEngineHandler = () => {
+        if(cars) {
+            const splitted = model.split(' ')
+            const car = splitted[0].toLowerCase()
+            const data = cars[car]
+            const foundEngine = data.engines.find(item => item.name === engine)
+            
+
+            if(foundEngine) {
+                const price = Number(data.price) + Number(foundEngine.price)
+
+                dispatch(setPrice(price))
+                setGearboxes(foundEngine.gearboxes)
+            }
+        }
+    }
+
+    useEffect(() => {
+        apiCall()
+    }, [])
+
+    useEffect(() => {
+        changeModelHandler()
+    }, [model])
+
+    useEffect(() => {
+        changeEngineHandler()
+    }, [engine])
 
     return (
         <div style={styles.wrapper}>
-            <div style={styles.buttonsWrapper}>
-                {
-                    models.map((item, index) => {
-                        return <Button key={index} onClick={() => dispatch(setModel(item))} text={item} selected={model === item}/>
-                    })
-                }
-            </div>
+            <ButtonsWrapper data={models} setValue={setModel} clearValue={clearModel} value={model} type={'model'} title={'Model'}/>
+            <ButtonsWrapper data={engines} setValue={setEngine} clearValue={clearEngine} value={engine} type={'engine'} title={'Engine'}/>
+            <ButtonsWrapper data={gearboxes} setValue={setGear} clearValue={clearGear} value={gear} type={'gear'} title={'Gearbox'}/>
+            <ButtonsWrapper data={colors} setValue={setColor} clearValue={clearColor} value={color} type={'color'} title={'Color'}/>
+        </div>
+    )
+}
 
-            <div style={styles.buttonsWrapper}>
-                {
-                    engines.map((item, index) => {
-                        return <Button key={index} onClick={() => dispatch(setEngine(item))} text={item} selected={engine === item}/>
-                    })
-                }
-            </div>
 
-            <div style={styles.buttonsWrapper}>
-                {
-                    gearboxes.map((item, index) => {
-                        return <Button key={index} onClick={() => setGearbox(item)} text={item} selected={gearbox === item}/>
-                    })
-                }
-            </div>
+const ButtonsWrapper = ({data, setValue, clearValue, value, type, title}) => {
 
+    const dispatch = useDispatch()
+
+    const onSetValue = (item) => {
+        dispatch(setValue(item))
+        if(type === 'model') {
+            dispatch(clearEngine())
+            dispatch(clearGear())
+            dispatch(clearColor())
+        }
+    }
+
+    return (
+        <div style={styles.elementWrapper}>
+            <span style={styles.title}>
+                {title}
+            </span>
             <div style={styles.buttonsWrapper}>
                 {
-                    colors.map((item, index) => {
-                        return <ColorButton key={index} onClick={() => setColor(item)} color={item} selected={color === item}/>
+                    data.map((item, index) => {
+
+                        const buttonProps = {
+                            color: type === 'color' ? item : '',
+                            text: type === 'color' ? '' : item
+                        }
+
+                        const selected = value === item
+                        const Element = type === 'color' ? ColorButton : Button 
+                        return <Element key={index} onClick={() => selected ? dispatch(clearValue()) : onSetValue(item)}  selected={selected} {...buttonProps}/>
                     })
                 }
             </div>
@@ -65,12 +160,25 @@ const styles = {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'flex-start'
+    },
+    elementWrapper: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-start'
     },
     buttonsWrapper: {
       display: 'flex',
-      justifyContent: 'space-between',
+      justifyContent: 'flex-start',
       alignItems: 'center',
+    },
+    title: {
+        fontSize: 15,
+        color: 'black',
+        marginTop: 20,
+        marginBottom: 15,
+        marginLeft: 10
     }
   }
 

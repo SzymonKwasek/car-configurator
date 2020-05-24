@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import Button from '../components/Button'
+import ButtonsWrapper from '../components/ButtonsWrapper'
 import ColorButton from '../components/ColorButton'
 import { setEngine, clearEngine } from '../actions/Engine'
 import { setModel, clearModel } from '../actions/Model'
@@ -42,7 +43,6 @@ const Configurator = () => {
         const data = res.data[keys[0]]
         const engineNames = data.engines.map(item => item.name)
         const price = Number(data.price) + Number(data.engines[0].price)
-        console.log(price)
 
 
         dispatch(setPrice(price))
@@ -106,6 +106,7 @@ const Configurator = () => {
         changeEngineHandler()
     }, [engine])
 
+
     return (
         <div style={styles.wrapper}>
             <ButtonsWrapper data={models} setValue={setModel} clearValue={clearModel} value={model} type={'model'} title={'Model'}/>
@@ -116,43 +117,6 @@ const Configurator = () => {
     )
 }
 
-
-const ButtonsWrapper = ({data, setValue, clearValue, value, type, title}) => {
-
-    const dispatch = useDispatch()
-
-    const onSetValue = (item) => {
-        dispatch(setValue(item))
-        if(type === 'model') {
-            dispatch(clearEngine())
-            dispatch(clearGear())
-            dispatch(clearColor())
-        }
-    }
-
-    return (
-        <div style={styles.elementWrapper}>
-            <span style={styles.title}>
-                {title}
-            </span>
-            <div style={styles.buttonsWrapper}>
-                {
-                    data.map((item, index) => {
-
-                        const buttonProps = {
-                            color: type === 'color' ? item : '',
-                            text: type === 'color' ? '' : item
-                        }
-
-                        const selected = value === item
-                        const Element = type === 'color' ? ColorButton : Button 
-                        return <Element key={index} onClick={() => selected ? dispatch(clearValue()) : onSetValue(item)}  selected={selected} {...buttonProps}/>
-                    })
-                }
-            </div>
-        </div>
-    )
-}
 
 const styles = {
     wrapper: {
